@@ -33,16 +33,17 @@ const Navigation = ({
           <span className="nav-label">データ</span>
         </button>
 
-        <button onClick={() => { setIsSidebarOpen(true); setSidebarTab('inquiries'); }} className={`nav-btn ${isSidebarOpen && sidebarTab === 'inquiries' ? 'active' : ''}`} style={{ width: '100%' }} title="問い合わせログ">
+        <button onClick={() => { setIsSidebarOpen(true); setSidebarTab('inquiries'); }} className={`nav-btn ${isSidebarOpen && sidebarTab === 'inquiries' ? 'active' : ''}`} style={{ width: '64px', height: '64px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} title="問い合わせログ">
           <MessageSquare size={24} />
           <span className="nav-label">ログ</span>
         </button>
 
-        <div style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+        <div style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.1)', width: '40px' }} />
+        
         <button 
           onClick={onExport} 
           className="nav-btn" 
-          style={{ width: '100%', color: 'var(--accent-primary)' }} 
+          style={{ width: '64px', height: '64px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)' }} 
           title="Excel出力"
         >
           <Download size={24} />
@@ -52,7 +53,7 @@ const Navigation = ({
         <button 
           onClick={onInquiry} 
           className="nav-btn" 
-          style={{ width: '100%', color: '#aaa' }} 
+          style={{ width: '64px', height: '64px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#aaa' }} 
           title="お問い合わせ・エラー報告"
         >
           <HelpCircle size={24} />
