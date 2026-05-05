@@ -1,0 +1,75 @@
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create Deploy Directory
+        run: mkdir -p deploy
+
+      # 1. Build アプリ作成管理アプリ (Portfolio) as root
+      - name: Build Portfolio
+        run: |
+          cd "アプリ作成管理アプリ"
+          npm install
+          npm run build
+          cp -rp dist/. ../deploy/
+
+      # 2. Build 組織図アプリ
+      - name: Build Org Chart
+        run: |
+          cd "組織図アプリ"
+          npm install
+          npm run build
+          mkdir -p ../deploy/組織図アプリ
+          cp -rp dist/. ../deploy/組織図アプリ/
+
+      # 3. Build ジム記録アプリ
+      - name: Build Gym Record
+        run: |
+          cd "ジム記録アプリ"
+          npm install
+          npm run build
+          mkdir -p ../deploy/ジム記録アプリ
+          cp -rp dist/. ../deploy/ジム記録アプリ/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './deploy'
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
