@@ -1,4 +1,4 @@
-import { Network, Users, Search, Share2, BarChart3, Download, HelpCircle } from 'lucide-react';
+import { Network, Users, Search, Share2, BarChart3, Download, HelpCircle, MessageSquare } from 'lucide-react';
 
 const Navigation = ({ 
   isSidebarOpen, 
@@ -31,6 +31,11 @@ const Navigation = ({
         <button onClick={() => { setIsSidebarOpen(true); setSidebarTab('stats'); }} className={`nav-btn ${isSidebarOpen && sidebarTab === 'stats' ? 'active' : ''}`} style={{ width: '100%' }} title="統計データ">
           <BarChart3 size={24} />
           <span className="nav-label">データ</span>
+        </button>
+
+        <button onClick={() => { setIsSidebarOpen(true); setSidebarTab('inquiries'); }} className={`nav-btn ${isSidebarOpen && sidebarTab === 'inquiries' ? 'active' : ''}`} style={{ width: '100%' }} title="問い合わせログ">
+          <MessageSquare size={24} />
+          <span className="nav-label">ログ</span>
         </button>
 
         <div style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }} />

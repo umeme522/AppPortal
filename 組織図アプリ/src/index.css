@@ -426,6 +426,56 @@ html, body, #root {
   color: var(--text-secondary);
 }
 
+/* --- Inquiry List in Sidebar --- */
+.inquiry-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.inquiry-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: var(--transition-premium);
+}
+
+.inquiry-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.inquiry-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.inquiry-item-name {
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.inquiry-item-type {
+  background: rgba(75, 123, 255, 0.2);
+  color: #4B7BFF;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+.inquiry-item-message {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 .success-message {
   text-align: center;
   padding: 40px 0;

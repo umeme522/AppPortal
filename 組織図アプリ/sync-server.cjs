@@ -84,6 +84,22 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ status: 'error', message: error.message }));
       }
     });
+  } else if (req.method === 'GET' && req.url === '/inquiries') {
+    const logFile = path.join(__dirname, 'inquiries.json');
+    if (fs.existsSync(logFile)) {
+      const logs = fs.readFileSync(logFile, 'utf8');
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*' 
+      });
+      res.end(logs);
+    } else {
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*' 
+      });
+      res.end(JSON.stringify([]));
+    }
   } else {
     res.writeHead(404);
     res.end();

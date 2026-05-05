@@ -1,112 +1,94 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 const InquiryModal = ({ isOpen, onClose }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [content, setContent] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', type: 'bug', message: '' });
+  const [status, setStatus] = useState('idle');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSending(true);
+    setStatus('sending');
+
+    // EmailJSの情報を設定
+    const serviceId = 'service_ozlah6b';
+    const templateId = 'template_sgyc1qp';
+    const publicKey = 'j1bMToGV2qz1hk2DN';
+
+    // テンプレートに渡す変数名（EmailJSのテンプレート設定に合わせて調整が必要な場合があります）
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      inquiry_type: formData.type === 'bug' ? '不具合報告' : formData.type === 'request' ? '機能要望' : 'その他',
+      message: formData.message,
+      // 既存のテンプレート変数名に合わせる（ジム記録アプリの例を参考に）
+      username: formData.name, 
+      email: formData.email,
+      password: '(問い合わせフォームからの送信)' 
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, content })
-      });
-
-      if (response.ok) {
-        setIsSuccess(true);
+      const result = await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      if (result.status === 200) {
+        setStatus('success');
         setTimeout(() => {
-          setIsSuccess(false);
-          setName('');
-          setEmail('');
-          setContent('');
           onClose();
+          setStatus('idle');
+          setFormData({ name: '', email: '', type: 'bug', message: '' });
         }, 2000);
+      } else {
+        setStatus('error');
       }
-    } catch (error) {
-      console.error('Inquiry submission failed', error);
-      alert('送信に失敗しました。ローカルサーバーが起動しているか確認してください。');
-    } finally {
-      setIsSending(false);
+    } catch (err) {
+      console.error('EmailJS Error:', err);
+      setStatus('error');
     }
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div 
-          className="modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div 
-            className="inquiry-panel glass"
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="inquiry-header">
-              <h2>お問い合わせ・エラー報告</h2>
-              <button className="close-btn" onClick={onClose}>&times;</button>
-            </div>
+  if (!isOpen) return null;
 
-            {isSuccess ? (
-              <div className="success-message">
-                <div className="success-icon">✓</div>
-                <p>送信が完了しました。<br/>ご協力ありがとうございます。</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="inquiry-form">
-                <div className="form-group">
-                  <label>お名前</label>
-                  <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    required 
-                    placeholder="氏名を入力"
-                    className="edit-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>メールアドレス (任意)</label>
-                  <input 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    placeholder="example@konoike.com"
-                    className="edit-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>内容 / エラー報告</label>
-                  <textarea 
-                    value={content} 
-                    onChange={(e) => setContent(e.target.value)} 
-                    required 
-                    placeholder="不具合の状況やご要望をご記入ください"
-                    className="edit-input"
-                    rows="5"
-                  />
-                </div>
-                <button type="submit" className="save-btn" disabled={isSending}>
-                  {isSending ? '送信中...' : '送信する'}
-                </button>
-              </form>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="inquiry-panel" onClick={e => e.stopPropagation()}>
+        <div className="inquiry-header">
+          <h2>お問い合わせ・不具合報告</h2>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
+        {status === 'success' ? (
+          <div className="success-message">
+            <div className="success-icon">✓</div>
+            <p>送信が完了しました。<br/>管理者が内容を確認いたします。</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="inquiry-form">
+            <div className="form-group">
+              <label>お名前</label>
+              <input type="text" required className="edit-input" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label>メールアドレス</label>
+              <input type="email" required className="edit-input" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label>種別</label>
+              <select className="edit-input" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                <option value="bug">不具合報告</option>
+                <option value="request">機能要望</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>メッセージ</label>
+              <textarea required rows="4" className="edit-input" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} style={{resize:'none'}} />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button type="button" onClick={onClose} className="cancel-btn">キャンセル</button>
+              <button type="submit" disabled={status === 'sending'} className="save-btn">{status === 'sending' ? '送信中...' : '送信する'}</button>
+            </div>
+            {status === 'error' && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>送信に失敗しました。時間をおいて再度お試しください。</p>}
+          </form>
+        )}
+      </div>
+    </div>
   );
 };
 
